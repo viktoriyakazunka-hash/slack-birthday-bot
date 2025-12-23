@@ -3,13 +3,13 @@ const https = require("https");
 const token = process.env.SLACK_TOKEN;
 const channel = process.env.CHANNEL_ID;
 
-console.log("TOKEN EXISTS:", !!token);
-console.log("CHANNEL:", channel);
-
-const data = JSON.stringify({
+const message = {
   channel: channel,
-  text: "🧪 Тестовое сообщение от birthday-bot"
-});
+  text: "Тестовое сообщение от birthday-bot"
+};
+
+const data = JSON.stringify(message);
+const dataLength = Buffer.byteLength(data);
 
 const options = {
   hostname: "slack.com",
@@ -17,8 +17,8 @@ const options = {
   method: "POST",
   headers: {
     "Authorization": `Bearer ${token}`,
-    "Content-Type": "application/json",
-    "Content-Length": data.length
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Length": dataLength
   }
 };
 
