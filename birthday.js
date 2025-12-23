@@ -7,10 +7,9 @@ const channel = process.env.CHANNEL_ID;
 const birthdays = JSON.parse(fs.readFileSync("birthdays.json"));
 
 const today = new Date();
-const todayMD =
-  String(today.getMonth() + 1).padStart(2, "0") +
-  "-" +
-  String(today.getDate()).padStart(2, "0");
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
+const todayMD = `${month}-${day}`;
 
 function postMessage(text) {
   const data = JSON.stringify({
@@ -34,8 +33,8 @@ function postMessage(text) {
   req.end();
 }
 
-for (const user in birthdays) {
-  if (birthdays[user].slice(5) === todayMD) {
-    postMessage(`🎉 Сегодня день рождения у <@${user}>! Поздравляем! 🎂`);
+for (const userId in birthdays) {
+  if (birthdays[userId].slice(5) === todayMD) {
+    postMessage(`🎉 Сегодня день рождения у <@${userId}>! Поздравляем! 🎂`);
   }
 }
