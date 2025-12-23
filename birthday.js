@@ -1,35 +1,48 @@
+const fs = require("fs");
 const https = require("https");
 
 const token = process.env.SLACK_TOKEN;
 const channel = process.env.CHANNEL_ID;
 
-const message = {
-  channel: channel,
-  text: "Тестовое сообщение от birthday-bot"
-};
+const birthdays = JSON.parse(fs.readFileSync("birthdays.json", "utf8"));
 
-const data = JSON.stringify(message);
-const dataLength = Buffer.byteLength(data);
+const today = new Date();
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
+const todayMD = `${month}-${day}`;
 
-const options = {
-  hostname: "slack.com",
-  path: "/api/chat.postMessage",
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${token}`,
-    "Content-Type": "application/json; charset=utf-8",
-    "Content-Length": dataLength
-  }
-};
+function postMessage(text) {
+  const payload = {
+    channel: channel,
+    text: text
+  };
 
-const req = https.request(options, res => {
-  let body = "";
-  res.on("data", chunk => body += chunk);
-  res.on("end", () => {
-    console.log("Slack response:", body);
+  const data = JSON.stringify(payload);
+  const dataLength = Buffer.byteLength(data);
+
+  const options = {
+    hostname: "slack.com",
+    path: "/api/chat.postMessage",
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Length": dataLength
+    }
+  };
+
+  const req = https.request(options, res => {
+    res.on("data", () => {});
   });
-});
 
-req.on("error", err => console.error(err));
-req.write(data);
-req.end();
+  req.on("error", err => console.error(err));
+  req.write(data);
+  req.end();
+}
+
+for (const userId in birthdays) {
+  if (birthdays[userId].slice(5) === todayMD) {
+    postMessage(`🎉 Сегодня день рождения у <@${userId}>! Поздравляем! 🎂`);
+  }
+}
+
