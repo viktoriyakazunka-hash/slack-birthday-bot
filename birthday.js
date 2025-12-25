@@ -103,7 +103,7 @@ if (birthdayUsers.length > 0) {
   postMessage(text, response => {
     if (response.ok) {
       const ts = response.ts;
-      ["tada", "birthday", "heart"].forEach(emoji =>
+      ["tada", "birthday", "partying_face"].forEach(emoji =>
         addReaction(emoji, ts)
       );
     }
