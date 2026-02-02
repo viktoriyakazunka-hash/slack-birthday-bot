@@ -5,23 +5,39 @@ const token = process.env.SLACK_TOKEN;
 const channel = process.env.CHANNEL_ID;
 
 const birthdays = JSON.parse(fs.readFileSync("birthdays.json", "utf8"));
+const images = JSON.parse(fs.readFileSync("birthday-images.json", "utf8"));
 
 const messages = [
-  ":tada: Ура! Сегодня день рождения у {USERS} — давайте поздравим и пожелаем отличного настроения и большого счастья!",
-  ":birthday: Сегодня праздник у {USERS}! Желаем радости, улыбок и классного года впереди!",
-  ":balloon: У {USERS} сегодня день рождения — отличный повод пожелать что-нибудь теплое и приятное!",
-  ":partying_face: Не забудьте поздравить {USERS} с днём рождения и пожелать всего самого приятного!"
+  "🎉 Сегодня день рождения у {USERS}, давайте поздравим их!",
+  "🎂 Праздник сегодня у {USERS}!",
+  "🥳 У {USERS} сегодня день рождения!"
 ];
 
+// ---- дата ----
 const today = new Date();
 const month = String(today.getMonth() + 1).padStart(2, "0");
 const day = String(today.getDate()).padStart(2, "0");
 const todayMD = `${month}-${day}`;
 
-// ---------- вспомогательные функции ----------
+// ---- helpers ----
+function postMessage(text, imageUrl, callback) {
+  const payload = imageUrl
+    ? {
+        channel,
+        blocks: [
+          {
+            type: "section",
+            text: { type: "mrkdwn", text }
+          },
+          {
+            type: "image",
+            image_url: imageUrl,
+            alt_text: "birthday image"
+          }
+        ]
+      }
+    : { channel, text };
 
-function postMessage(text, callback) {
-  const payload = { channel, text };
   const data = JSON.stringify(payload);
 
   const options = {
@@ -45,14 +61,12 @@ function postMessage(text, callback) {
   req.end();
 }
 
-function addReaction(name, timestamp) {
-  const payload = {
+function addReaction(name, ts) {
+  const data = JSON.stringify({
     channel,
     name,
-    timestamp
-  };
-
-  const data = JSON.stringify(payload);
+    timestamp: ts
+  });
 
   const options = {
     hostname: "slack.com",
@@ -70,9 +84,7 @@ function addReaction(name, timestamp) {
   req.end();
 }
 
-// ---------- логика ----------
-
-// 1️⃣ собираем именинников
+// ---- основная логика ----
 const birthdayUsers = [];
 
 for (const userId in birthdays) {
@@ -81,9 +93,7 @@ for (const userId in birthdays) {
   }
 }
 
-// 2️⃣ если есть кого поздравлять
 if (birthdayUsers.length > 0) {
-
   let usersText;
 
   if (birthdayUsers.length === 1) {
@@ -100,15 +110,13 @@ if (birthdayUsers.length > 0) {
   const template = messages[Math.floor(Math.random() * messages.length)];
   const text = template.replace("{USERS}", usersText);
 
-  // 3️⃣ отправляем сообщение и добавляем реакции
-  postMessage(text, response => {
+  const imageUrl = images[todayMD] || null;
+
+  postMessage(text, imageUrl, response => {
     if (response.ok) {
-      const ts = response.ts;
       ["tada", "birthday", "partying_face"].forEach(emoji =>
-        addReaction(emoji, ts)
+        addReaction(emoji, response.ts)
       );
     }
   });
 }
-
-
