@@ -178,6 +178,9 @@ type:"section",
 text:{type:"mrkdwn",text}
 },
 {
+type:"divider"
+},
+{
 type:"image",
 image_url:imageUrl,
 alt_text:"birthday"
