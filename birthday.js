@@ -164,7 +164,7 @@ else{
  template = messages3[Math.floor(Math.random()*messages3.length)];
 }
 
-const text = template.replace(/ИМЯ/g, usersText);
+const text = template.replace(/{USERS}/g, usersText);
 
 /* выбираем картинку */
 
