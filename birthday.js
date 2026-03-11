@@ -9,9 +9,9 @@ const birthdays = JSON.parse(fs.readFileSync("birthdays.json", "utf8"));
 /* ---------------- КАРТИНКИ ---------------- */
 
 const images = [
-"https://raw.githubusercontent.com/viktoriyakazunka-hash/slack-birthday-bot/main/photos/users/birthday1.jpg",
-"https://raw.githubusercontent.com/viktoriyakazunka-hash/slack-birthday-bot/main/photos/users/birthday2.jpg",
-"https://raw.githubusercontent.com/viktoriyakazunka-hash/slack-birthday-bot/main/photos/users/birthday3.jpg"
+"https://raw.githubusercontent.com/viktoriyakazunka-hash/slack-birthday-bot/main/photos/users/birthday1.png",
+"https://raw.githubusercontent.com/viktoriyakazunka-hash/slack-birthday-bot/main/photos/users/birthday2.png",
+"https://raw.githubusercontent.com/viktoriyakazunka-hash/slack-birthday-bot/main/photos/users/birthday3.png"
 ];
 
 /* ---------------- ТЕКСТЫ (1 человек) ---------------- */
