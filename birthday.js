@@ -119,6 +119,45 @@ const month = String(today.getMonth()+1).padStart(2,"0");
 const day = String(today.getDate()).padStart(2,"0");
 const todayMD = `${month}-${day}`;
 
+function getUserAvatar(userId) {
+
+return new Promise((resolve,reject)=>{
+
+const options = {
+hostname:"slack.com",
+path:`/api/users.info?user=${userId}`,
+method:"GET",
+headers:{
+Authorization:`Bearer ${token}`
+}
+};
+
+const req = https.request(options,res=>{
+
+let body="";
+
+res.on("data",chunk=>body+=chunk);
+
+res.on("end",()=>{
+
+const data = JSON.parse(body);
+
+if(data.ok){
+resolve(data.user.profile.image_192);
+}else{
+resolve(null);
+}
+
+});
+
+});
+
+req.on("error",reject);
+req.end();
+
+});
+
+}
 /* ---------------- ПОИСК ИМЕНИННИКОВ ---------------- */
 
 const birthdayUsers = [];
