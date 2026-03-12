@@ -160,123 +160,79 @@ req.end();
 }
 /* ---------------- ПОИСК ИМЕНИННИКОВ ---------------- */
 
-(async()=>{
-
 const birthdayUsers = [];
 
-for(const userId in birthdays){
-
-if(birthdays[userId].slice(5) === todayMD){
-birthdayUsers.push(userId);
+for (const userId in birthdays) {
+ if (birthdays[userId].slice(5) === todayMD) {
+  birthdayUsers.push(`<@${userId}>`);
+ }
 }
 
-}
-
-if(birthdayUsers.length === 0){
-return;
-}
-
-/* ---------- формируем текст пользователей ---------- */
-
-const slackMentions = birthdayUsers.map(id=>`<@${id}>`);
+if (birthdayUsers.length > 0){
 
 let usersText;
 
-if(slackMentions.length === 1){
-usersText = slackMentions[0];
-}
-else if(slackMentions.length === 2){
-usersText = slackMentions.join(" и ");
-}
-else{
-usersText =
-slackMentions.slice(0,-1).join(", ") +
-" и " +
-slackMentions[slackMentions.length-1];
+if (birthdayUsers.length === 1){
+ usersText = birthdayUsers[0];
 }
 
-/* ---------- выбираем текст ---------- */
+else if (birthdayUsers.length === 2){
+ usersText = birthdayUsers.join(" и ");
+}
+
+else{
+ usersText =
+ birthdayUsers.slice(0,-1).join(", ") +
+ " и " +
+ birthdayUsers[birthdayUsers.length-1];
+}
+
+/* выбираем текст */
 
 let template;
 
-if(birthdayUsers.length === 1){
-template = messages1[Math.floor(Math.random()*messages1.length)];
+if (birthdayUsers.length === 1){
+ template = messages1[Math.floor(Math.random()*messages1.length)];
 }
-else if(birthdayUsers.length === 2){
-template = messages2[Math.floor(Math.random()*messages2.length)];
+
+else if (birthdayUsers.length === 2){
+ template = messages2[Math.floor(Math.random()*messages2.length)];
 }
+
 else{
-template = messages3[Math.floor(Math.random()*messages3.length)];
+ template = messages3[Math.floor(Math.random()*messages3.length)];
 }
 
-const text = template.replace(/{USERS}/g,usersText);
+const text = template.replace(/{USERS}/g, usersText);
 
-/* ---------- получаем аватарки ---------- */
-
-const avatarBlocks = [];
-
-for(const id of birthdayUsers){
-
-const avatar = await getUserAvatar(id);
-
-if(avatar){
-
-avatarBlocks.push({
-type:"image",
-image_url:avatar,
-alt_text:"avatar"
-});
-
-}
-
-}
-
-/* ---------- выбираем картинку ---------- */
+/* выбираем картинку */
 
 const imageUrl = images[Math.floor(Math.random()*images.length)];
 
-/* ---------- сообщение ---------- */
-
 const payload = JSON.stringify({
-
 channel,
-
 blocks:[
-
 {
 type:"section",
 text:{type:"mrkdwn",text}
 },
-
-{
-type:"context",
-elements:avatarBlocks
-},
-
 {
 type:"image",
 image_url:imageUrl,
 alt_text:"birthday"
 }
-
 ]
-
 });
 
-/* ---------- отправка ---------- */
-
 const options = {
-
 hostname:"slack.com",
 path:"/api/chat.postMessage",
 method:"POST",
-
 headers:{
-Authorization:`Bearer ${token}`,
+"Authorization":`Bearer ${token}`,
 "Content-Type":"application/json",
 "Content-Length":Buffer.byteLength(payload)
 }
-
 };
 
 const req = https.request(options,res=>{
@@ -294,25 +250,20 @@ if(response.ok){
 ["tada","birthday","partying_face"].forEach(emoji=>{
 
 const reactionData = JSON.stringify({
-
 channel,
 name:emoji,
 timestamp:response.ts
-
 });
 
 const reactionOptions = {
-
 hostname:"slack.com",
 path:"/api/reactions.add",
 method:"POST",
-
 headers:{
-Authorization:`Bearer ${token}`,
+"Authorization":`Bearer ${token}`,
 "Content-Type":"application/json",
 "Content-Length":Buffer.byteLength(reactionData)
 }
-
 };
 
 const reactionReq = https.request(reactionOptions);
@@ -330,4 +281,4 @@ reactionReq.end();
 req.write(payload);
 req.end();
 
-})();
+}
